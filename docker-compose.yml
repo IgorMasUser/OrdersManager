@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  ordersmanager:
+    image: ${DOCKER_REGISTRY-}ordersmanager
+    build:
+      context: OrdersManager
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - rabbitmq
+    entrypoint: ["./wait-for-it.sh", "rabbitmq:5672", "--", "dotnet", "OrdersManager.dll"]
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
