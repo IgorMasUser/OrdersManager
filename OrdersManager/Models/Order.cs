@@ -7,7 +7,7 @@ namespace OrdersManager.Models
         public int OrderId { get; set; }
         public string CustomerNumber { get; set; }
         public DateTime CreatedAt { get; set; }
-        public OrderState OrderStatus { get; set; }
+        public OrderState OrderStatus { get; set; } = new OrderState();
         public List<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

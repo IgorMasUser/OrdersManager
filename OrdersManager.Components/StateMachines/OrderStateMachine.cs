@@ -28,7 +28,6 @@ namespace OrdersManager.Components.StateMachines
                 {
                     context.Instance.SubmitDate = context.Data.TimeStamp;
                     context.Instance.CustomerNumber = context.Data.CustomerNumber;
-                    //context.Instance.Updated = DateTime.UtcNow;
                 })
                 .TransitionTo(Submitted));
 
@@ -48,7 +47,6 @@ namespace OrdersManager.Components.StateMachines
                 {
                     context.Instance.SubmitDate ??= context.Data.TimeStamp;
                     context.Instance.CustomerNumber ??= context.Data.CustomerNumber;
-
                 }));
         }
 
