@@ -1,4 +1,6 @@
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using OrdersManager.Components.Consumers;
 using OrdersManager.Components.StateMachines;
 using OrdersManager.Contracts;
@@ -16,14 +18,27 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IOrderRepository<Order>, OrderRepository>();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite("Data Source=orders.db"));
 
 builder.Services.AddMassTransit(x =>
 {
-    x.AddSagaStateMachine<OrderStateMachine, OrderState>(typeof(OrderStatMachineDeffenition))
-    .InMemoryRepository();
+    x.AddSagaStateMachine<OrderStateMachine, OrderState>(sagaConfig =>
+    {
+        sagaConfig.UseMessageRetry(r => r.Immediate(5));
+        sagaConfig.UseInMemoryOutbox();
+    })
+    .EntityFrameworkRepository(r =>
+    {
+        r.ConcurrencyMode = ConcurrencyMode.Optimistic;
+        r.AddDbContext<DbContext, ApplicationDbContext>((provider, builder) =>
+        {
+            builder.UseSqlite("Data Source=orders.db");
+        });
+    });
+
     x.SetKebabCaseEndpointNameFormatter();
 
-    x.SetInMemorySagaRepositoryProvider();
     x.AddConsumer<SubmitOrderConsumer>();
 
     x.AddRequestClient<SubmitOrder>(new Uri($"exchange:{KebabCaseEndpointNameFormatter.Instance.Consumer<SubmitOrderConsumer>()}"));

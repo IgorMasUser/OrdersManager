@@ -10,7 +10,10 @@ services:
       - "8080:80"
     depends_on:
       - rabbitmq
-    entrypoint: ["./wait-for-it.sh", "rabbitmq:5672", "--", "dotnet", "OrdersManager.dll"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
 
   rabbitmq:
     image: "rabbitmq:3-management"
