@@ -1,35 +1,31 @@
-﻿using OrdersManager.Data.Abstraction;
+﻿using Microsoft.EntityFrameworkCore;
+using OrdersManager.Data.Abstraction;
 using OrdersManager.Models;
 
 namespace OrdersManager.Data.Implementation
 {
     public class OrderRepository : IOrderRepository<Order>
     {
-        private readonly List<Order> orders = new();
+        private readonly ApplicationDbContext context;
+
+        public OrderRepository(ApplicationDbContext context)
+        {
+            this.context = context;
+        }
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await Task.FromResult(orders);
+            var listOfOrders = await context.Orders
+                                            .Include(o => o.Items)
+                                            .Include(o => o.OrderStatus)
+                                            .ToListAsync();
+            return listOfOrders;
         }
 
-        public async Task<Order> GetByIdAsync(int id)
+        public async Task AddAsync(Order order)
         {
-            var order = orders.Find(o => o.OrderId == id);
-            if (order != null)
-            {
-                return await Task.FromResult(order);
-            }
-            else
-            {
-                return await Task.FromResult<Order>(null);
-            }
-
-        }
-
-        public async Task AddAsync(Order entity)
-        {
-            orders.Add(entity);
-            await Task.CompletedTask;
+            context.Orders.Add(order);
+            await context.SaveChangesAsync();
         }
     }
 }

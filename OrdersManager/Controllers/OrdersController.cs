@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using OrdersManager.Contracts;
 using OrdersManager.Data.Abstraction;
 using OrdersManager.Models;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace OrdersManager.Controllers
 {
@@ -53,7 +55,13 @@ namespace OrdersManager.Controllers
         public async Task<IActionResult> GetOrders()
         {
             var orders = await orderRepository.GetAllAsync();
-            return Ok(orders);
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                WriteIndented = true
+            };
+            var json = JsonSerializer.Serialize(orders, options);
+            return Ok(json);
         }
 
         //[HttpPost("payment")]
