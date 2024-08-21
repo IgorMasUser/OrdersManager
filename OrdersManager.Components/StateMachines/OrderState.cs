@@ -5,7 +5,6 @@ namespace OrdersManager.Components.StateMachines
 {
     public class OrderState : SagaStateMachineInstance, ISagaVersion
     {
-        [Key]
         public Guid CorrelationId { get; set; } = new Guid();
         public string CustomerNumber { get; set; }
         public string CurrentState { get; set; }

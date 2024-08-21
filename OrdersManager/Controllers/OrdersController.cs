@@ -64,6 +64,13 @@ namespace OrdersManager.Controllers
             return Ok(json);
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAllOrders()
+        {
+            await orderRepository.DeleteAll();
+            return Ok();
+        }
+
         //[HttpPost("payment")]
         //public async Task<IActionResult> OrderPayment([FromBody] OrderPaymentRequest request)
         //{

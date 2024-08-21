@@ -30,7 +30,7 @@ builder.Services.AddMassTransit(x =>
     })
     .EntityFrameworkRepository(r =>
     {
-        r.ConcurrencyMode = ConcurrencyMode.Optimistic;
+        r.ConcurrencyMode = ConcurrencyMode.Pessimistic;
         r.AddDbContext<DbContext, ApplicationDbContext>((provider, builder) =>
         {
             builder.UseSqlite("Data Source=orders.db");

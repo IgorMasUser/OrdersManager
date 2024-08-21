@@ -4,5 +4,6 @@
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task AddAsync(TEntity entity);
+        Task DeleteAll();
     }
 }

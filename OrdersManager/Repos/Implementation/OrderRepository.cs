@@ -27,5 +27,16 @@ namespace OrdersManager.Data.Implementation
             context.Orders.Add(order);
             await context.SaveChangesAsync();
         }
+
+        public async Task DeleteAll()
+        {
+            var listOfOrders = await context.Orders.ToListAsync();
+            if (listOfOrders.Count > 0)
+            {
+                context.RemoveRange(listOfOrders);
+                await context.SaveChangesAsync();
+            }
+
+        }
     }
 }

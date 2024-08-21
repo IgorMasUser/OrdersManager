@@ -15,14 +15,19 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<OrderState>()
+         .HasKey(o => o.CorrelationId);
+
         modelBuilder.Entity<Order>()
             .HasMany(o => o.Items)
             .WithOne(i => i.Order)
-            .HasForeignKey(i => i.OrderId);
+            .HasForeignKey(i => i.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Order>()
             .HasOne(o => o.OrderStatus)
-            .WithMany()
-            .HasForeignKey(o => o.OrderStateId);
+            .WithOne()
+            .HasForeignKey<Order>(o => o.OrderStateId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
