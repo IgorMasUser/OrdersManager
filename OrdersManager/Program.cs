@@ -57,12 +57,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var pendingMigrations = dbContext.Database.GetPendingMigrations();
-
-    if (pendingMigrations.Any())
-    {
-        dbContext.Database.Migrate();
-    }
+    dbContext.Database.EnsureCreated();
 }
 
 
