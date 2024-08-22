@@ -1,5 +1,4 @@
 ﻿using MassTransit;
-using System.ComponentModel.DataAnnotations;
 
 namespace OrdersManager.Components.StateMachines
 {
@@ -9,7 +8,7 @@ namespace OrdersManager.Components.StateMachines
         public string CustomerNumber { get; set; }
         public string CurrentState { get; set; }
         public int Version { get; set; }
-        public DateTime? SubmitDate { get; internal set; }
+        public DateTime? SubmitDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
     }
 }

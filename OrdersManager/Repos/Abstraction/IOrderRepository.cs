@@ -3,7 +3,8 @@
     public interface IOrderRepository<TEntity> where TEntity : class
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
-        Task AddAsync(TEntity entity);
+        void AddAsync(TEntity entity);
+        Task SaveAllChangesAsync();
         Task DeleteAll();
     }
 }

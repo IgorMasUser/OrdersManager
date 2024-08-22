@@ -7,34 +7,31 @@ using OrdersManager.Contracts;
 using OrdersManager.Data.Abstraction;
 using OrdersManager.Data.Implementation;
 using OrdersManager.Models;
-using static OrdersManager.Components.StateMachines.OrderStateMachine;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IOrderRepository<Order>, OrderRepository>();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=orders.db"));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
+    builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddMassTransit(x =>
 {
     x.AddSagaStateMachine<OrderStateMachine, OrderState>(sagaConfig =>
     {
-        sagaConfig.UseMessageRetry(r => r.Immediate(5));
+        sagaConfig.UseMessageRetry(r => r.Immediate(3));
         sagaConfig.UseInMemoryOutbox();
     })
     .EntityFrameworkRepository(r =>
     {
-        r.ConcurrencyMode = ConcurrencyMode.Pessimistic;
-        r.AddDbContext<DbContext, ApplicationDbContext>((provider, builder) =>
-        {
-            builder.UseSqlite("Data Source=orders.db");
-        });
+        r.ConcurrencyMode = ConcurrencyMode.Optimistic;
+        r.ExistingDbContext<ApplicationDbContext>();
+
+        r.UseSqlServer();
     });
 
     x.SetKebabCaseEndpointNameFormatter();
@@ -56,6 +53,18 @@ builder.Services.AddMassTransit(x =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var pendingMigrations = dbContext.Database.GetPendingMigrations();
+
+    if (pendingMigrations.Any())
+    {
+        dbContext.Database.Migrate();
+    }
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

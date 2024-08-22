@@ -16,7 +16,11 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<OrderState>()
-         .HasKey(o => o.CorrelationId);
+            .HasKey(o => o.CorrelationId);
+
+        modelBuilder.Entity<OrderState>()
+            .Property(o => o.CorrelationId)
+            .HasColumnType("uniqueidentifier");
 
         modelBuilder.Entity<Order>()
             .HasMany(o => o.Items)
@@ -29,5 +33,9 @@ public class ApplicationDbContext : DbContext
             .WithOne()
             .HasForeignKey<Order>(o => o.OrderStateId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderItem>()
+           .Property(o => o.UnitPrice)
+           .HasColumnType("decimal(18,2)");
     }
 }

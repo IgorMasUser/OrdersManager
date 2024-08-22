@@ -22,10 +22,9 @@ namespace OrdersManager.Data.Implementation
             return listOfOrders;
         }
 
-        public async Task AddAsync(Order order)
+        public void AddAsync(Order order)
         {
             context.Orders.Add(order);
-            await context.SaveChangesAsync();
         }
 
         public async Task DeleteAll()
@@ -37,6 +36,11 @@ namespace OrdersManager.Data.Implementation
                 await context.SaveChangesAsync();
             }
 
+        }
+
+        public async Task SaveAllChangesAsync()
+        {
+            await context.SaveChangesAsync();
         }
     }
 }

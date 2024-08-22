@@ -29,7 +29,7 @@ namespace OrdersManager.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
-            await orderRepository.AddAsync(order);
+            orderRepository.AddAsync(order);
 
             var (accepted, rejected) = await submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
             {
@@ -40,6 +40,8 @@ namespace OrdersManager.Controllers
             if (accepted.IsCompletedSuccessfully)
             {
                 var response = await accepted;
+                await orderRepository.SaveAllChangesAsync();
+
                 return Ok(response);
             }
 

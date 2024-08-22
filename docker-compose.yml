@@ -1,4 +1,4 @@
-version: '3.4'
+version: latest
 
 services:
   ordersmanager:
@@ -9,14 +9,30 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - rabbitmq
-    volumes:
-      - ./data:/app/data
+      rabbitmq:
+        condition: service_started
+      sqlserver:
+        condition: service_started
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
 
   rabbitmq:
     image: "rabbitmq:3-management"
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  sqlserver:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    hostname: sqlserver
+    volumes:
+      - mssql_data:/var/opt/mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Ig9379992"
+    ports:
+      - "1455:1433"
+
+
+volumes:
+  mssql_data: {}  
