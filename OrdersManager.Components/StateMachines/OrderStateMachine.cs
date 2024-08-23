@@ -12,55 +12,40 @@ public partial class OrderStateMachine : MassTransitStateMachine<OrderState>
 
     public OrderStateMachine(ILogger<OrderStateMachine> logger)
     {
+        this.logger = logger;
+
         Event(() => OrderSubmitted, x => x.CorrelateById(m => m.Message.OrderId));
         Event(() => OrderPaid, x => x.CorrelateById(m => m.Message.OrderId));
         Event(() => OrderCancelled, x => x.CorrelateById(m => m.Message.OrderId));
-        Event(() => OrderStatusRequested, x => x.CorrelateById(m => m.Message.OrderId));
 
         InstanceState(x => x.CurrentState);
         Initially(
             When(OrderSubmitted)
-            .TransitionTo(Submitted)
             .Then(context =>
             {
                 context.Instance.SubmitDate = context.Data.TimeStamp;
                 context.Instance.CustomerNumber = context.Data.CustomerNumber;
 
-                logger.Log(LogLevel.Information, $"Order is being submitted. Current State: {context.Instance.CurrentState}");
-            }));
 
-        During(Submitted,
+                logger.Log(LogLevel.Information, $"Order is being submitted. Current State: {context.Instance.CurrentState}");
+            })
+            .TransitionTo(New));
+
+        During(New,
             When(OrderPaid)
                 .Then(context =>
                 {
                     context.Instance.UpdatedDate = context.Data.TimeStamp;
+                    logger.LogInformation($"Order paid: {context.Instance.CorrelationId}");
                 })
                 .TransitionTo(Paid),
             When(OrderCancelled)
                 .Then(context =>
                 {
                     context.Instance.UpdatedDate = context.Data.TimeStamp;
+                    logger.LogInformation($"Order cancelled: {context.Instance.CorrelationId}");
                 })
-                .TransitionTo(Cancelled));
-
-        DuringAny(
-            When(OrderStatusRequested)
-                .RespondAsync(x => x.Init<OrderStatus>(new
-                {
-                    OrderId = x.Instance.CorrelationId,
-                    State = x.Instance.CurrentState
-                }))
-        );
-
-        DuringAny(
-            When(OrderSubmitted)
-            .Then(context =>
-            {
-                context.Instance.SubmitDate ??= context.Data.TimeStamp;
-                context.Instance.CustomerNumber ??= context.Data.CustomerNumber;
-            })
-        );
-        this.logger = logger;
+                .TransitionTo(Cancelled));    
     }
 
     // Defining the states
@@ -73,6 +58,5 @@ public partial class OrderStateMachine : MassTransitStateMachine<OrderState>
     public Event<OrderSubmitted> OrderSubmitted { get; private set; }
     public Event<OrderPaid> OrderPaid { get; private set; }
     public Event<OrderCancelled> OrderCancelled { get; private set; }
-    public Event<CheckOrder> OrderStatusRequested { get; private set; }
 }
 

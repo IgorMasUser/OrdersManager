@@ -42,7 +42,6 @@ namespace OrdersManager.Controllers
             if (accepted.IsCompletedSuccessfully)
             {
                 var response = await accepted;
-                await orderRepository.SaveAllChangesAsync();
                 return Ok(response);
             }
 
