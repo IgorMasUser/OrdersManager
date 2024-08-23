@@ -8,7 +8,7 @@ namespace OrdersManager.SharedModels
         public string? CustomerNumber { get; set; }
         public string? CurrentState { get; set; }
         public int Version { get; set; }
-        public DateTime? SubmitDate { get; set; }
+        public DateTime? SubmitDate { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedDate { get; set; }
         public Order? Order { get; set; }
     }
