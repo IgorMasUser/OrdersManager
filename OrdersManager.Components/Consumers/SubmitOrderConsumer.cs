@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
 using OrdersManager.Contracts;
+using System.Text.RegularExpressions;
 
 namespace OrdersManager.Components.Consumers
 {
@@ -15,21 +16,21 @@ namespace OrdersManager.Components.Consumers
         public async Task Consume(ConsumeContext<SubmitOrder> context)
         {
             logger.Log(LogLevel.Debug, "SubmitOrderConsumer:{CustomerNumber}", context.Message.CustomerNumber);
-            //if (context.Message.CustomerNumber.Contains("TEST"))
-            //{
-            //    if (context.RequestId != null)
-            //    {
-            //        await context.RespondAsync<OrderSubmissionRejected>(new
-            //        {
-            //            InVar.Timestamp,
-            //            context.Message.OrderId,
-            //            context.Message.CustomerNumber,
-            //            Reason = $"Test Customer cannot submit order:{context.Message.CustomerNumber}"
 
-            //        });
-            //    }
-            //    return;
-            //}
+            if (!Regex.IsMatch(context.Message.CustomerNumber, @"^\d+$"))
+            {
+                if (context.RequestId != null)
+                {
+                    await context.RespondAsync<OrderSubmissionRejected>(new
+                    {
+                        InVar.Timestamp,
+                        context.Message.OrderId,
+                        CustomerNumber = context.Message.CustomerNumber,
+                        Reason = $"CustomerNumber must contain only digits for order Id: {context.Message.OrderId}"
+                    });
+                }
+                return;
+            }
 
             await context.Publish<OrderSubmitted>(new
             {

@@ -13,15 +13,15 @@ namespace OrdersManager.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderRepository<Order> orderRepository;
-        private readonly ISendEndpointProvider sendEndpointProvider;
+        private readonly IPublishEndpoint publishEndpoint;
         private readonly IRequestClient<SubmitOrder> submitOrderRequestClient;
         private readonly IRequestClient<CheckOrder> checkOrderClient;
 
-        public OrdersController(IOrderRepository<Order> orderRepository, ISendEndpointProvider sendEndpointProvider, IRequestClient<SubmitOrder> submitOrderRequestClient,
+        public OrdersController(IOrderRepository<Order> orderRepository, IPublishEndpoint publishEndpoint, IRequestClient<SubmitOrder> submitOrderRequestClient,
             IRequestClient<CheckOrder> checkOrderClient)
         {
             this.orderRepository = orderRepository;
-            this.sendEndpointProvider = sendEndpointProvider;
+            this.publishEndpoint = publishEndpoint;
             this.submitOrderRequestClient = submitOrderRequestClient;
             this.checkOrderClient = checkOrderClient;
         }
@@ -29,9 +29,8 @@ namespace OrdersManager.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
-            orderRepository.AddAsync(order);
+            await orderRepository.AddAsync(order);
             await orderRepository.SaveAllChangesAsync();
-
 
             var (accepted, rejected) = await submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
             {
@@ -41,6 +40,8 @@ namespace OrdersManager.Controllers
             });
             if (accepted.IsCompletedSuccessfully)
             {
+                await orderRepository.SaveAllChangesAsync();
+
                 var response = await accepted;
                 return Ok(response);
             }
@@ -73,24 +74,33 @@ namespace OrdersManager.Controllers
             return Ok();
         }
 
-        //[HttpPost("payment")]
-        //public async Task<IActionResult> OrderPayment([FromBody] OrderPaymentRequest request)
-        //{
-        //    var order = await _orderRepository.GetByIdAsync(request.OrderId);
+        [HttpPut]
+        public async Task<IActionResult> OrderPayment([FromBody] OrderPaymentRequest request)
+        {
+            var order = await orderRepository.GetByIdAsync(request.CustomerNumber);
 
-        //    if (order == null)
-        //        return NotFound();
+            if (order == null)
+                return NotFound();
 
-        //    if (request.IsPaid)
-        //    {
-        //        await _publishEndpoint.Publish(new OrderPaid { OrderId = request.OrderId });
-        //    }
-        //    else
-        //    {
-        //        await _publishEndpoint.Publish(new OrderCancelled { OrderId = request.OrderId });
-        //    }
+            if (request.IsPaid)
+            {
+                await publishEndpoint.Publish<OrderPaid>(new 
+                { 
+                    OrderId = request.OrderId,
+                    TimeStamp = InVar.Timestamp
+                });
+            }
+            else
+            {
 
-        //    return Ok();
-        //}
+                await publishEndpoint.Publish<OrderCancelled>( new  
+                { 
+                    OrderId = request.OrderId,
+                    TimeStamp = InVar.Timestamp
+                });
+            }
+
+            return Ok();
+        }
     }
 }

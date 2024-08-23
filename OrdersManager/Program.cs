@@ -7,6 +7,7 @@ using Order = OrdersManager.SharedModels.Order;
 using OrderState = OrdersManager.SharedModels.OrderState;
 using SubmitOrderConsumer = OrdersManager.Components.Consumers.SubmitOrderConsumer;
 using OrderStateMachine = OrdersManager.Components.Consumers.OrderStateMachine;
+using OrdersManager.Components.Consumers;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,7 @@ builder.Services.AddMassTransit(x =>
     x.SetKebabCaseEndpointNameFormatter();
 
     x.AddConsumer<SubmitOrderConsumer>();
+    x.AddConsumer<OrderPaymentConsumer>();
 
     x.AddRequestClient<SubmitOrder>(new Uri($"exchange:{KebabCaseEndpointNameFormatter.Instance.Consumer<SubmitOrderConsumer>()}"));
     x.AddRequestClient<CheckOrder>();

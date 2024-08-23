@@ -22,9 +22,9 @@ namespace OrdersManager.Data.Implementation
             return listOfOrders;
         }
 
-        public void AddAsync(Order order)
+        public async Task AddAsync(Order order)
         {
-            context.Orders.Add(order);
+            await context.Orders.AddAsync(order);
         }
 
         public async Task DeleteAll()
@@ -33,8 +33,8 @@ namespace OrdersManager.Data.Implementation
             if (listOfOrders.Count > 0)
             {
                 var listOfOrderStatuses = listOfOrders.Select(o => o.OrderStatus).ToList();
-                context.RemoveRange(listOfOrderStatuses);
 
+                context.RemoveRange(listOfOrderStatuses);
                 context.RemoveRange(listOfOrders);
 
                 await context.SaveChangesAsync();
@@ -46,5 +46,19 @@ namespace OrdersManager.Data.Implementation
         {
             await context.SaveChangesAsync();
         }
+
+        public async Task<Order> GetByIdAsync(string CustomerId)
+        {
+            var order = await context.Orders.Where(o=>o.CustomerNumber.Equals(CustomerId)).FirstOrDefaultAsync();
+            if(order != null)
+            {
+                return order;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }
