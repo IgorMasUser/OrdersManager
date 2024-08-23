@@ -1,12 +1,13 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using OrdersManager.Components.Consumers;
-using OrdersManager.Components.StateMachines;
 using OrdersManager.Contracts;
 using OrdersManager.Data.Abstraction;
 using OrdersManager.Data.Implementation;
-using OrdersManager.Models;
+using Order = OrdersManager.SharedModels.Order;
+using OrderState = OrdersManager.SharedModels.OrderState;
+using SubmitOrderConsumer = OrdersManager.Components.Consumers.SubmitOrderConsumer;
+using OrderStateMachine = OrdersManager.Components.Consumers.OrderStateMachine;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

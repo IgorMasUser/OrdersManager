@@ -1,7 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
-using OrdersManager.Components.StateMachines;
 using OrdersManager.Contracts;
+using OrdersManager.SharedModels;
 
 
 namespace OrdersManager.Components.Consumers;

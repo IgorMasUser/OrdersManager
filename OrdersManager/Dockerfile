@@ -7,8 +7,12 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["OrdersManager.csproj", "."]
 COPY ["./OrdersManager.Contracts/OrdersManager.Contracts.csproj", "."]
+COPY ["./OrdersManager.Components/OrdersManager.Components.csproj", "./OrdersManager.Components/"]
+COPY ["./OrdersManager.SharedModels/OrdersManager.SharedModels.csproj", "./OrdersManager.SharedModels/"]
+
 RUN dotnet restore "./OrdersManager.csproj"
 COPY . .
 WORKDIR "/src/."

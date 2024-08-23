@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace OrdersManager.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrderState : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,8 +16,8 @@ namespace OrdersManager.Migrations
                 columns: table => new
                 {
                     CorrelationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CurrentState = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CurrentState = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Version = table.Column<int>(type: "int", nullable: false),
                     SubmitDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -32,7 +33,7 @@ namespace OrdersManager.Migrations
                 {
                     OrderId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OrderStateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -53,10 +54,10 @@ namespace OrdersManager.Migrations
                 {
                     OrderItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18, 2)", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -78,8 +79,21 @@ namespace OrdersManager.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_OrderStateId",
                 table: "Orders",
-                column: "OrderStateId");
+                column: "OrderStateId",
+                unique: true);
         }
 
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "OrderItems");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "OrderStates");
+        }
     }
 }

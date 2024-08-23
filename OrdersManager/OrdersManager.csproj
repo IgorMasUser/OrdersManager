@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OrdersManager.Components\OrdersManager.Components.csproj" />
     <ProjectReference Include="..\OrdersManager.Contracts\OrdersManager.Contracts.csproj" />
+    <ProjectReference Include="..\OrdersManager.SharedModels\OrdersManager.SharedModels.csproj" />
   </ItemGroup>
 
 </Project>

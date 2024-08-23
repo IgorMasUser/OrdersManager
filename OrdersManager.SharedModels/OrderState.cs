@@ -1,14 +1,15 @@
 ﻿using MassTransit;
 
-namespace OrdersManager.Components.StateMachines
+namespace OrdersManager.SharedModels
 {
     public class OrderState : SagaStateMachineInstance, ISagaVersion
     {
-        public Guid CorrelationId { get; set; } = new Guid();
-        public string CustomerNumber { get; set; }
-        public string CurrentState { get; set; }
+        public Guid CorrelationId { get; set; }
+        public string? CustomerNumber { get; set; }
+        public string? CurrentState { get; set; }
         public int Version { get; set; }
         public DateTime? SubmitDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+        public Order? Order { get; set; }
     }
 }

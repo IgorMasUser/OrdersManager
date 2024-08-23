@@ -2,7 +2,6 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using OrdersManager.Contracts;
 using OrdersManager.Data.Abstraction;
-using OrdersManager.Models;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
@@ -12,12 +11,12 @@ namespace OrdersManager.Controllers
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
-        private readonly IOrderRepository<Order> orderRepository;
+        private readonly IOrderRepository<SharedModels.Order> orderRepository;
         private readonly ISendEndpointProvider sendEndpointProvider;
         private readonly IRequestClient<SubmitOrder> submitOrderRequestClient;
         private readonly IRequestClient<CheckOrder> checkOrderClient;
 
-        public OrdersController(IOrderRepository<Order> orderRepository, ISendEndpointProvider sendEndpointProvider, IRequestClient<SubmitOrder> submitOrderRequestClient,
+        public OrdersController(IOrderRepository<SharedModels.Order> orderRepository, ISendEndpointProvider sendEndpointProvider, IRequestClient<SubmitOrder> submitOrderRequestClient,
             IRequestClient<CheckOrder> checkOrderClient)
         {
             this.orderRepository = orderRepository;
@@ -27,8 +26,13 @@ namespace OrdersManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        public async Task<IActionResult> CreateOrder([FromBody] SharedModels.Order order)
         {
+            //if (order.OrderStatus.CorrelationId == Guid.Empty)
+            //{
+            //    order.OrderStatus.CorrelationId = Guid.NewGuid();
+            //}
+
             orderRepository.AddAsync(order);
 
             var (accepted, rejected) = await submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new

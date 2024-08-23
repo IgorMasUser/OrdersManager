@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrdersManager.Data.Abstraction;
-using OrdersManager.Models;
+using OrdersManager.SharedModels;
 
 namespace OrdersManager.Data.Implementation
 {
@@ -29,10 +29,14 @@ namespace OrdersManager.Data.Implementation
 
         public async Task DeleteAll()
         {
-            var listOfOrders = await context.Orders.ToListAsync();
+            var listOfOrders = await context.Orders.Include(o => o.OrderStatus).ToListAsync();
             if (listOfOrders.Count > 0)
             {
+                var listOfOrderStatuses = listOfOrders.Select(o => o.OrderStatus).ToList();
+                context.RemoveRange(listOfOrderStatuses);
+
                 context.RemoveRange(listOfOrders);
+
                 await context.SaveChangesAsync();
             }
 

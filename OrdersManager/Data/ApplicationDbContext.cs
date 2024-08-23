@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OrdersManager.Components.StateMachines;
-using OrdersManager.Models;
+using Order = OrdersManager.SharedModels.Order;
+using OrderItem = OrdersManager.SharedModels.OrderItem;
+using OrderState = OrdersManager.SharedModels.OrderState;
 
 public class ApplicationDbContext : DbContext
 {
@@ -29,13 +30,13 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Order>()
-            .HasOne(o => o.OrderStatus)
-            .WithOne()
-            .HasForeignKey<Order>(o => o.OrderStateId)
-            .OnDelete(DeleteBehavior.Cascade);
+           .HasOne(o => o.OrderStatus)
+           .WithOne()
+           .HasForeignKey<Order>(o => o.OrderStateId)
+           .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<OrderItem>()
-           .Property(o => o.UnitPrice)
-           .HasColumnType("decimal(18,2)");
+            .Property(o => o.UnitPrice)
+            .HasColumnType("decimal(18,2)");
     }
 }
