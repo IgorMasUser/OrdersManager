@@ -29,27 +29,39 @@ namespace OrdersManager.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
-            await orderRepository.AddAsync(order);
-            await orderRepository.SaveAllChangesAsync();
-
-            var (accepted, rejected) = await submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
+            using (var transaction = await orderRepository.BeginTransactionAsync())
             {
-                OrderId = order.OrderStatus.CorrelationId,
-                InVar.Timestamp,
-                CustomerNumber = order.CustomerNumber
-            });
-            if (accepted.IsCompletedSuccessfully)
-            {
-                await orderRepository.SaveAllChangesAsync();
+                try
+                {
+                    await orderRepository.AddAsync(order);
 
-                var response = await accepted;
-                return Ok(response);
-            }
+                    var (accepted, rejected) = await submitOrderRequestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
+                    {
+                        OrderId = order.OrderStatus.CorrelationId,
+                        InVar.Timestamp,
+                        CustomerNumber = order.CustomerNumber
+                    });
 
-            else
-            {
-                var response = await rejected;
-                return BadRequest(response.Message);
+                    if (accepted.IsCompletedSuccessfully)
+                    {
+                        await transaction.CommitAsync();
+
+                        var response = await accepted;
+                        return Ok(response);
+                    }
+                    else
+                    {
+                        await transaction.RollbackAsync();
+
+                        var response = await rejected;
+                        return BadRequest(response.Message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
             }
 
         }

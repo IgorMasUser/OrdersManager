@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using OrdersManager.Data.Abstraction;
 using OrdersManager.SharedModels;
 
@@ -25,20 +26,25 @@ namespace OrdersManager.Data.Implementation
         public async Task AddAsync(Order order)
         {
             await context.Orders.AddAsync(order);
+            await context.SaveChangesAsync();
         }
 
         public async Task DeleteAll()
         {
             var listOfOrders = await context.Orders.Include(o => o.OrderStatus).ToListAsync();
+            var listOfStates = await context.OrderStates.ToListAsync();
             if (listOfOrders.Count > 0)
             {
-                var listOfOrderStatuses = listOfOrders.Select(o => o.OrderStatus).ToList();
-
-                context.RemoveRange(listOfOrderStatuses);
                 context.RemoveRange(listOfOrders);
 
-                await context.SaveChangesAsync();
             }
+            if (listOfStates.Count > 0)
+            {
+                context.RemoveRange(listOfStates);
+
+            }
+
+            await context.SaveChangesAsync();
 
         }
 
@@ -60,5 +66,9 @@ namespace OrdersManager.Data.Implementation
             }
         }
 
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await context.Database.BeginTransactionAsync();
+        }
     }
 }

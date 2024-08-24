@@ -1,4 +1,6 @@
-﻿namespace OrdersManager.Data.Abstraction
+﻿using Microsoft.EntityFrameworkCore.Storage;
+
+namespace OrdersManager.Data.Abstraction
 {
     public interface IOrderRepository<TEntity> where TEntity : class
     {
@@ -7,5 +9,6 @@
         Task SaveAllChangesAsync();
         Task DeleteAll();
         Task<TEntity> GetByIdAsync(string id);
+        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }
