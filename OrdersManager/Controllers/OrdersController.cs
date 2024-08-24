@@ -26,6 +26,11 @@ namespace OrdersManager.Controllers
             this.checkOrderClient = checkOrderClient;
         }
 
+        /// <summary>
+        /// Generate request for items order 
+        /// Test paloads are attachen in Scenarios_Payloads.txt
+        /// </summary>
+        /// <param name="order"></param>
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
@@ -60,12 +65,15 @@ namespace OrdersManager.Controllers
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                    return StatusCode(500, $"Internal server error: {ex.InnerException?.Message}");
                 }
             }
 
         }
 
+        /// <summary>
+        /// Get all orders
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetOrders()
         {
@@ -79,6 +87,9 @@ namespace OrdersManager.Controllers
             return Ok(json);
         }
 
+        /// <summary>
+        /// Endpoint created ONLY for test purposes (To clean up DB)
+        /// </summary>
         [HttpDelete]
         public async Task<IActionResult> DeleteAllOrders()
         {
@@ -86,6 +97,10 @@ namespace OrdersManager.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Order payment endpoint. Set "true" to pay and "false" to reject.
+        /// </summary>
+        /// <param name="request"></param>
         [HttpPut]
         public async Task<IActionResult> OrderPayment([FromBody] OrderPaymentRequest request)
         {
@@ -96,17 +111,16 @@ namespace OrdersManager.Controllers
 
             if (request.IsPaid)
             {
-                await publishEndpoint.Publish<OrderPaid>(new 
-                { 
+                await publishEndpoint.Publish<OrderPaid>(new
+                {
                     OrderId = request.OrderId,
                     TimeStamp = InVar.Timestamp
                 });
             }
             else
             {
-
-                await publishEndpoint.Publish<OrderCancelled>( new  
-                { 
+                await publishEndpoint.Publish<OrderCancelled>(new
+                {
                     OrderId = request.OrderId,
                     TimeStamp = InVar.Timestamp
                 });

@@ -1,0 +1,83 @@
+POST - create order
+{
+  "customerNumber": "12345",
+  "createdAt": "2024-08-17T23:17:51.613Z",
+  "orderStateId": "EFD7984C-847B-4E03-ADE0-435B4F66F130",
+  "orderStatus": {
+    "correlationId": "EFD7984C-847B-4E03-ADE0-435B4F66F130",
+    "customerNumber": "12345",
+    "version": 0,
+    "submitDate": "2024-08-17T23:17:51.613Z",
+    "updatedDate": null
+  },
+  "items": [
+    {
+      "productName": "TestProduct",
+      "customerNumber": "12345",
+      "quantity": 1,
+      "unitPrice": 99.99
+    }
+  ]
+}
+
+
+PUT - pay order
+{
+  "orderId": "EFD7984C-847B-4E03-ADE0-435B4F66F130",
+  "customerNumber": "12345",
+  "isPaid": true
+}
+
+
+POST - create order
+{
+  "customerNumber": "12341",
+  "createdAt": "2024-08-17T23:17:51.613Z",
+  "orderStateId": "DA0D3156-BEBF-4EE8-A315-EAADEEC68073",
+  "orderStatus": {
+    "correlationId": "DA0D3156-BEBF-4EE8-A315-EAADEEC68073",
+    "customerNumber": "12341",
+    "version": 0,
+    "submitDate": "2024-08-17T23:17:51.613Z",
+    "updatedDate": null
+  },
+  "items": [
+    {
+      "productName": "TestProduct2",
+      "customerNumber": "12341",
+      "quantity": 1,
+      "unitPrice": 99.99
+    }
+  ]
+}
+
+PUT - reject payment
+{
+  "orderId": "DA0D3156-BEBF-4EE8-A315-EAADEEC68073",
+  "customerNumber": "12341",
+  "isPaid": false
+}
+
+
+Vlidation test for incorrect customerNumber
+POST
+{
+  "customerNumber": "12345aa",
+  "createdAt": "2024-08-17T23:17:51.613Z",
+  "orderStateId": "1BF806E7-81DC-4B2E-8087-CC44C4DEA6B3",
+  "orderStatus": {
+    "correlationId": "1BF806E7-81DC-4B2E-8087-CC44C4DEA6B3",
+    "customerNumber": "12345aa",
+    "version": 0,
+    "submitDate": "2024-08-17T23:17:51.613Z",
+    "updatedDate": null
+  },
+  "items": [
+    {
+      "productName": "TestProduct3",
+      "customerNumber": "12345aa",
+      "quantity": 2,
+      "unitPrice": 3
+    }
+  ]
+}

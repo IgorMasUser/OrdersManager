@@ -25,8 +25,16 @@ namespace OrdersManager.Data.Implementation
 
         public async Task AddAsync(Order order)
         {
-            await context.Orders.AddAsync(order);
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.Orders.AddAsync(order);
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
 
         public async Task DeleteAll()

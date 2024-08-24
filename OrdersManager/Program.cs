@@ -8,6 +8,7 @@ using OrderState = OrdersManager.SharedModels.OrderState;
 using SubmitOrderConsumer = OrdersManager.Components.Consumers.SubmitOrderConsumer;
 using OrderStateMachine = OrdersManager.Components.Consumers.OrderStateMachine;
 using OrdersManager.Components.Consumers;
+using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IOrderRepository<Order>, OrderRepository>();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.XML";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+});
 
 builder.Services.AddMassTransit(x =>
 {
